@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "MainHUDWidget.generated.h"
 
+class UBarWidget;
 /**
  * 
  */
@@ -14,5 +15,6 @@ class UREALGAS_ASSIGNMENT_API UMainHUDWidget : public UUserWidget
 {
 	GENERATED_BODY()
 public:
-
+	UPROPERTY(BlueprintReadWrite ,meta = (BindWidget))
+	TObjectPtr<UBarWidget> ManaBar;
 };

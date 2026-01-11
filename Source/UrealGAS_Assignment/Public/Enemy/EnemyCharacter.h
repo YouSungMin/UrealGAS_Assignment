@@ -6,45 +6,36 @@
 #include "GameFramework/Character.h"
 #include "AbilitySystemInterface.h"
 #include "GameplayEffectTypes.h"
-#include "PlayerCharacter.generated.h"
+#include "EnemyCharacter.generated.h"
 
-class UBarWidget;
 UCLASS()
-class UREALGAS_ASSIGNMENT_API APlayerCharacter : public ACharacter, public IAbilitySystemInterface
+class UREALGAS_ASSIGNMENT_API AEnemyCharacter : public ACharacter, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 
 public:
 	// Sets default values for this character's properties
-	APlayerCharacter();
+	AEnemyCharacter();
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override {
 		return AbilitySystemComponent;
 	}
-
 protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
 private:
-	void InitializeHUD();
-
-	void OnManaChange(const FOnAttributeChangeData& InData);
-	void OnMaxManaChange(const FOnAttributeChangeData& InData);
-
-	void OnFireBall();
-	UBarWidget* GetManaBarWidget() const;
-public:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "GameAbility")
-	TSubclassOf<class UGameplayAbility> FireBallClass = nullptr;
+	void OnHealthChange(const FOnAttributeChangeData& InData);
+	void OnMaxHealthChange(const FOnAttributeChangeData& InData);
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ability")
 	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent = nullptr;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
-	TObjectPtr<class UInputAction> IA_FireBall = nullptr;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI")
+	TObjectPtr<class UWidgetComponent> HealthBarWidget;
 private:
 	UPROPERTY()
-	TObjectPtr<class UPlayerAttributeSet> PlayerAttributeSet = nullptr;
+	TObjectPtr<class UEnemyAttributeSet> EnemyAttributeSet = nullptr;
 };

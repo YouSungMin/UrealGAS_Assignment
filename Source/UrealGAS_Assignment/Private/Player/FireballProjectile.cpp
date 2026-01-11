@@ -16,7 +16,7 @@ AFireballProjectile::AFireballProjectile()
 	SphereComponent = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
 	SetRootComponent(SphereComponent);
 	SphereComponent->SetCollisionProfileName(TEXT("OverlapAllDynamic")); 
-	SphereComponent->InitSphereRadius(200.0f);
+	SphereComponent->InitSphereRadius(50.0f);
 	
 	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComp"));
 	MeshComponent->SetupAttachment(SphereComponent);
@@ -41,23 +41,28 @@ void AFireballProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedCompone
 	if (!OtherActor || OtherActor == this || OtherActor == GetInstigator()) return;
 
 	UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(OtherActor);
-	if (TargetASC)
+	UAbilitySystemComponent* SourceASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetInstigator());
+
+	if (TargetASC && SourceASC)
 	{
-		if (BurnEffectClass)
-		{
-			FGameplayEffectContextHandle ContextHandle = TargetASC->MakeEffectContext();
-			ContextHandle.AddSourceObject(this);
-
-			// Àû¿ë
-			TargetASC->ApplyGameplayEffectToSelf(BurnEffectClass.GetDefaultObject(), 1.0f, ContextHandle);
-			UE_LOG(LogTemp, Log, TEXT("Burn"));
-		}
-
+		FGameplayEffectContextHandle ContextHandle = SourceASC->MakeEffectContext();
+		ContextHandle.AddSourceObject(this);
 		if (DamageEffectClass)
 		{
-			FGameplayEffectContextHandle ContextHandle = TargetASC->MakeEffectContext();
-			ContextHandle.AddSourceObject(this);
-			TargetASC->ApplyGameplayEffectToSelf(DamageEffectClass.GetDefaultObject(), 1.0f, ContextHandle);
+			FGameplayEffectSpecHandle SpecHandle = SourceASC->MakeOutgoingSpec(DamageEffectClass, 1.0f, ContextHandle);
+			if (SpecHandle.IsValid())
+			{
+				TargetASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+			}
+		}
+		if (BurnEffectClass)
+		{
+			FGameplayEffectSpecHandle SpecHandle = SourceASC->MakeOutgoingSpec(BurnEffectClass, 1.0f, ContextHandle);
+			if (SpecHandle.IsValid())
+			{
+				TargetASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+				UE_LOG(LogTemp, Log, TEXT("Burn"));
+			}
 		}
 	}
 	Destroy();

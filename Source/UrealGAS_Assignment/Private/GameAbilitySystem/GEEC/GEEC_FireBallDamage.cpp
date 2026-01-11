@@ -53,15 +53,15 @@ void UGEEC_FireBallDamage::Execute_Implementation(const FGameplayEffectCustomExe
 		FAggregatorEvaluateParameters EvaluateParameters;
 		EvaluateParameters.SourceTags = SourceTags;
 		EvaluateParameters.TargetTags = TargetTags;
-		float AttackPower = 0.0f;
+		float MagicPower = 0.0f;
 		bool Result = ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(
 			FireDamageStatics().MagicPowerDef,
 			EvaluateParameters,
-			AttackPower);
+			MagicPower);
 
 		if (Result)
 		{
-			Damage += AttackPower;
+			Damage += MagicPower;
 			UE_LOG(LogTemp, Log, TEXT("%f"), Damage);
 		}
 

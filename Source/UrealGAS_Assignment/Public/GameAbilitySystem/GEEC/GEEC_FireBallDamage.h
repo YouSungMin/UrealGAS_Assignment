@@ -21,7 +21,7 @@ public:
 		FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const override;
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "CustomData")
-	float MinimumDamage = 1.0f;
+	float MinimumDamage = 0.0f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "CustomData")
 	float DamageMultiplier = 2.0f;

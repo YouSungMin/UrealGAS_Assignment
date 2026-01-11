@@ -3,9 +3,13 @@
 
 #include "Player/PlayerCharacter.h"
 #include "AbilitySystemComponent.h"
-#include "GameAbilitySystem/Player/PlayerAttributeSet.h"
 #include "EnhancedInputComponent.h"
+#include "GameAbilitySystem/Player/PlayerAttributeSet.h"
 #include "GameAbilitySystem/Ability/GameAbilityEnums.h"
+#include "UI/MainHUD.h"
+#include "UI/MainHUDWidget.h"
+#include "UI/BarWidget.h"
+#include "UI/Interface/Resource.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -50,7 +54,7 @@ void APlayerCharacter::BeginPlay()
 
 	if (PlayerAttributeSet)
 	{
-		
+		InitializeHUD();
 	}
 }
 
@@ -74,12 +78,40 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	}
 }
 
+void APlayerCharacter::InitializeHUD()
+{
+	if (!PlayerAttributeSet) return;
+
+	if (UBarWidget* ManaBar = GetManaBarWidget())
+	{
+		if (ManaBar->Implements<UResource>())
+		{
+			IResource::Execute_UpdateMax(ManaBar, PlayerAttributeSet->GetMaxMana());
+			IResource::Execute_UpdateCurrent(ManaBar, PlayerAttributeSet->GetMana());
+		}
+	}
+}
+
 void APlayerCharacter::OnManaChange(const FOnAttributeChangeData& InData)
 {
+	if (UBarWidget* ManaBar = GetManaBarWidget())
+	{
+		if (ManaBar->Implements<UResource>())
+		{
+			IResource::Execute_UpdateCurrent(ManaBar, InData.NewValue);
+		}
+	}
 }
 
 void APlayerCharacter::OnMaxManaChange(const FOnAttributeChangeData& InData)
 {
+	if (UBarWidget* ManaBar = GetManaBarWidget())
+	{
+		if (ManaBar->Implements<UResource>())
+		{
+			IResource::Execute_UpdateMax(ManaBar, InData.NewValue);
+		}
+	}
 }
 
 void APlayerCharacter::OnFireBall()
@@ -90,5 +122,24 @@ void APlayerCharacter::OnFireBall()
 	{
 		AbilitySystemComponent->AbilityLocalInputPressed(static_cast<int32>(EAbilityInputID::FireBall));
 	}
+}
+
+UBarWidget* APlayerCharacter::GetManaBarWidget() const
+{
+	// 컨트롤러 확인
+	if (APlayerController* PC = Cast<APlayerController>(GetController()))
+	{
+		// HUD 확인
+		if (AMainHUD* HUD = Cast<AMainHUD>(PC->GetHUD()))
+		{
+			// MainWidget 확인
+			if (UMainHUDWidget* MainWidget = HUD->GetMainHUDWidget())
+			{
+				// ManaBar 반환
+				return MainWidget->ManaBar;
+			}
+		}
+	}
+	return nullptr;
 }
 

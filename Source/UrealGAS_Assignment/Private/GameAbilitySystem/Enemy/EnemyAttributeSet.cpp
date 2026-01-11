@@ -15,6 +15,7 @@ void UEnemyAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute,
 	{
 
 		NewValue = FMath::Clamp(NewValue, 0.0f, GetMaxHealth());
+		UE_LOG(LogTemp, Log, TEXT("Health°¡ º¯°æ (%.1f -> %.1f)"), GetHealth(), NewValue);
 	}
 }
 
